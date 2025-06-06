@@ -1,0 +1,10 @@
+{
+    "require": {
+        "firebase/php-jwt": "*"
+    },
+    "config": {
+        "platform": {
+          "php": "8.2"
+        }
+      }    
+}
