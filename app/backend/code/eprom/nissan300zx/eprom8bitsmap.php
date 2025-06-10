@@ -46,11 +46,33 @@ class eprom8bitsMap extends epromMap {
 
     }
 
+    /** $value must be 7bits - Based on DevilZFromJapan excel spreadsheet */
+    function getAFRFromValue(int $value):float {
+
+        //0 is impossible (I think)
+        if ($value == 64 || $value == 0) return 14.7;
+
+        $constCoef = 0.0077;
+        if ($value < 0) {
+            //Lean
+            $value = abs($value);
+            $value = -(14.7 /(1+(($value-64)*$constCoef)));
+        }
+        else {
+            //Rich
+            $value = 14.7 / (1+($value*$constCoef));
+        }
+      
+        return round($value, 1);
+
+    }
+
     function getReadableValue(): mixed {      
 
         $isword = (isset($this->_entry["data"]["isword"]) && $this->_entry["data"]["isword"] === true);
         $signed = (isset($this->_entry["data"]["signed"]) && $this->_entry["data"]["signed"] === true);
         $multiby = (isset($this->_entry["data"]["*by"])) ? $this->_entry["data"]["*by"] : 1;
+        $isAFR = isset($this->_entry["data"]["isAFR"]) && $this->_entry["data"]["isAFR"] === true;
 
         $map = $this->getValue();
     
@@ -60,7 +82,9 @@ class eprom8bitsMap extends epromMap {
             $nrow = [];
             $nknock = [];
             foreach($row as $cell) {
-                $nrow[] = $this->getNumFromHex($cell, $isword, $signed) * $multiby;
+                $value = $this->getNumFromHex($cell, $isword, $signed) * $multiby;
+                if ($isAFR) $value = $this->getAFRFromValue($value);
+                $nrow[] = $value;
             }
             $newMap[] = $nrow;
         }
@@ -72,6 +96,8 @@ class eprom8bitsMap extends epromMap {
     function getParameters(): mixed {
 
         $data = [ 'r' => $this->_entry["data"]["rows"], 'c' => $this->_entry["data"]["cellsbyrow"], "xaxis" => [], "yaxis" => [] ];
+
+        if (isset($this->_entry["data"]["gradient"])) $data["gradient"] = $this->_entry["data"]["gradient"];
 
         //default
         $addAxisValues = false;

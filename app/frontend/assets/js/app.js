@@ -110,7 +110,7 @@ class app_core {
 
                             <div class="col-md-12 app_container">
                             
-                              <nav class="navbar header navbar-expand-lg bg-body-tertiary">
+                              <nav class="navbar header fixed-top navbar-expand-lg bg-body-tertiary">
                               
                                 <div class="container-fluid">
                                   <img class="navbar-image-logo" src="/assets/images/EPROM_chip_under_100KB.png" alt="Bootstrap" width="30" height="24">
@@ -123,6 +123,18 @@ class app_core {
                                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">                                                
                                       <li class="nav-item">
                                         <a class="nav-link disabled ` + (curURLScreen == "epromcomparator" ? "active" : "") + `" data-screen="epromcomparator" href="#">Eprom Comparator</a>
+                                      </li>
+                                      <li>
+                                        <div class="form-check form-switch form-showhexa">
+                                          <input class="form-check-input" type="checkbox" id="showhexa_switch" data-name="switch_hexa" role="switch">
+                                          <label class="form-check-label" for="showhexa_switch">Hexa</label>
+                                        </div>
+                                      </li>                                      
+                                      <li>
+                                        <div class="form-check form-switch form-showdif">
+                                          <input class="form-check-input" type="checkbox" id="showdiff_switch" data-name="switch_diff" role="switch">
+                                          <label class="form-check-label" for="showdiff_switch">Compare</label>
+                                        </div>
                                       </li>
                                     </ul>
                                     <div class="form-check form-switch">
@@ -159,6 +171,14 @@ class app_core {
     $(this.#container).append(app_screen);
     $(".appname").html(this.#appName);
 
+    $(this.#container).find(".header #showdiff_switch, .header #showhexa_switch").on("change", $.proxy(function(e) {
+      const $currentItem = $(e.currentTarget);
+      const name = $currentItem.attr("data-name");
+      app_core.createCookie(name, $currentItem.is(":checked"));
+      this.#event.value = { 'name': name, 'value': $currentItem.is(":checked") };
+    }, this));
+
+
 //         $(this.#container).find(".header #debug_switch").on("change", $.proxy(function(e) {
 //             const $currentItem = $(e.currentTarget);
 //             app_core.createCookie("debug_mode", $currentItem.is(":checked"));
@@ -185,7 +205,23 @@ class app_core {
       $(this.#container).find(".header #debug_switch").prop("checked", true).trigger("change");
     }
 
+    if (app_core.readCookie("show_diff") == "true") {
+      $(this.#container).find(".header #showdiff_switch").prop("checked", true);
+    }
+
+    if (app_core.readCookie("show_hexa") == "true") {
+      $(this.#container).find(".header #showhexa_switch").prop("checked", true);
+    }    
+
   }
+
+  showDiffSwitch() {
+    return $(this.#container).find(".header #showdiff_switch").is(":checked");
+  }
+
+  showHexaSwitch() {
+    return $(this.#container).find(".header #showhexa_switch").is(":checked");
+  }  
 
 //     showLogin(options) {
 //       this.#login.buildHTML(options);

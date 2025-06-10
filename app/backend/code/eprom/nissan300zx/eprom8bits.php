@@ -28,16 +28,31 @@ class eprom8bits extends epromWrapper {
         $this->addEntry('RPMSCALETIMING', 'RPM Scale Timing (rpm)', [ 'offset' => "7B20", 'type' => "map", 'rows' => 1, 'cellsbyrow' => 16, "*by" => 50 ]);
         $this->addEntry('RPMSCALEFUEL', 'RPM Scale Timing (rpm)', [ 'offset' => "7B00", 'type' => "map", 'rows' => 1, 'cellsbyrow' => 16, "*by" => 50 ]);
         $this->addEntry('PTIMING', 'Primary Timing Map', [ 'offset' => "7800", 'type' => "map", 'rows' => 16, 'cellsbyrow' => 16, 'signed' => true, 
-                                                            "yaxis" => [ "is" => "ref", "to" => "RPMSCALETIMING"], 
-                                                            "xaxis" => [ "is" => "ref", "to" => "TPSCALETIMING" ] 
+                                                            "yaxis" => [ "is" => "ref", "to" => "RPMSCALETIMING"],
+                                                            "xaxis" => [ "is" => "ref", "to" => "TPSCALETIMING" ],
+                                                            "gradient" => [ [ "c" => "b", "v" => -5],
+                                                                            [ "c" => "bl", "v" => 5],
+                                                                            [ "c" => "g", "v" => 25], 
+                                                                            [ "c" => "y", "v" => 35 ], 
+                                                                            [ "c" => "r", "v" => 45 ] ]
                                                         ]);
         $this->addEntry('KNOCKTIMING', 'Knock Timing Map', [ 'offset' => "7C00", 'type' => "map", 'rows' => 16, 'cellsbyrow' => 16, 'signed' => true, 
                                                             "yaxis" => [ "is" => "ref", "to" => "RPMSCALETIMING"], 
-                                                            "xaxis" => [ "is" => "ref", "to" => "TPSCALETIMING" ] 
-                                                        ]);
-        $this->addEntry('PFUELMAP', 'Primary Fuel Map', [ 'offset' => "7D00", 'type' => "map", 'rows' => 16, 'cellsbyrow' => 16, 'signed' => true, 
-                                                            "yaxis" => [ "is" => "ref", "to" => "RPMSCALEFUEL"], 
-                                                            "xaxis" => [ "is" => "ref", "to" => "TPSCALEFUEL" ] 
+                                                            "xaxis" => [ "is" => "ref", "to" => "TPSCALETIMING" ],
+                                                            "gradient" => [ [ "c" => "b", "v" => -5],
+                                                                            [ "c" => "bl", "v" => 5],
+                                                                            [ "c" => "g", "v" => 25], 
+                                                                            [ "c" => "y", "v" => 35 ], 
+                                                                            [ "c" => "r", "v" => 45 ] ]
+                                                       ]);
+        $this->addEntry('PFUELMAP', 'Primary Fuel Map', [ 'offset' => "7D00", 'type' => "map", 'rows' => 16, 'cellsbyrow' => 16, 'signed' => true, "isAFR" => true,
+                                                            "yaxis" => [ "is" => "ref", "to" => "RPMSCALEFUEL"],
+                                                            "xaxis" => [ "is" => "ref", "to" => "TPSCALEFUEL"],
+                                                             "gradient" => [ [ "c" => "b", "v" => 10],
+                                                                            [ "c" => "bl", "v" => 12],
+                                                                            [ "c" => "g", "v" => 14.7], 
+                                                                            [ "c" => "y", "v" => 15.1 ], 
+                                                                            [ "c" => "r", "v" => 15.9 ] ]
                                                         ]);
         $this->addEntry('WATERWARMUP', 'Water Warm Up', [ 'offset' => "7B30", 'type' => "map", 'rows' => 2, 'cellsbyrow' => 16 ]);
         $this->addEntry('VQTABLE', 'VQ Table', [ 'offset' => "7A70", 'type' => "map", 'rows' => 2, 'cellsbyrow' => 16, "isword" => true ]);

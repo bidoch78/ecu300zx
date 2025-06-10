@@ -4,17 +4,28 @@ class epromComparator extends screen {
 
   constructor(app) {
     super("epromcomparator", app);
-    this.attach(this.eventRaised);
+    this.attach($.proxy(this.eventRaised, this));
   }
 
   eventRaised(v) {
+    
+    if (v.name == "switch_diff") this.compareEprom(v.value);
+    if (v.name == "switch_hexa") {
+
+      $(this.container).find(`#accordionEpromComparator .eprom-container .eprom-param-container`).each((indexd, data) => {
+        $(data).attr("data-disp", v.value ? "hex": "value");
+        $(data).data("eprom_param").refresh();
+      });
+
+    }
+
   }
 
   addEpromData(eprom, epromIndex) {
 
     let html = "";
 
-    html += `<div class="eprom-container">
+    html += `<div class="eprom-container-data">
                 <div class="alert alert-primary" role="alert">
                   <ul>
                     <li>File: ${eprom.file}</li>
@@ -23,7 +34,8 @@ class epromComparator extends screen {
                 </div>`;
 
     eprom.data.available.map((part) => {
-      html += `<div class="eprom-param-container" data-epromparam="${part.key}"><span class="eprom-param-name">${part.name}</span><div class="eprom-param-content"></div></div>`;
+      //html += `<div class="eprom-param-container" data-disp="hex" data-epromparam="${part.key}"><span class="eprom-param-name">${part.name}</span><div class="eprom-param-content"></div></div>`;
+      html += `<div class="eprom-param-container" data-disp="` + (this.app.showHexaSwitch() ? "hex": "value") + `" data-epromparam="${part.key}"><span class="eprom-param-name">${part.name}</span><div class="eprom-param-content"></div></div>`;
     });
 
     html += `</div>`;
@@ -31,54 +43,113 @@ class epromComparator extends screen {
     let $html = $(html);
 
     eprom.data.available.map((part) => {
-      const $htmlpart = $html.find(`.eprom-param-container[data-epromparam="${part.key}"]`);
-      const param = {
-        '_epromData': eprom.data.detail[part.key],
-        '_element': $htmlpart,
-        'display': function(dispHex) {
 
-          switch(this._epromData.is) {
-            case "map":
+      $html.find(`.eprom-param-container[data-epromparam="${part.key}"]`).each((index, item) => {
 
-              var tab = "<table>";
-                tab += "<thead><th></th>";
-                for(var col = 0; col < this._epromData._p.c; col++) {
-                  tab += '<th class="table-map-th">' + this._epromData._p.xaxis[col] + "</th>";
+        const $htmlpart = $(item);
+
+        const param = {
+          '_epromData': eprom.data.detail[part.key],
+          '_element': $htmlpart,
+          '_gradient': {
+            'colourGradientor': function(p, rgb_beginning, rgb_end) {
+              var w = p * 2 - 1;
+              var w1 = (w + 1) / 2.0;
+              var w2 = 1 - w1;
+              var rgb = [parseInt(rgb_beginning[0] * w1 + rgb_end[0] * w2),
+                          parseInt(rgb_beginning[1] * w1 + rgb_end[1] * w2),
+                          parseInt(rgb_beginning[2] * w1 + rgb_end[2] * w2)];
+              return rgb;
+            },
+            'colorBlue': [ 50, 130, 246],
+            'colorBlueLight': [ 66, 190, 246],
+            'colorGreen': [ 117, 250, 97 ],
+            'colorYellow': [ 255, 253, 85 ],
+            'colorRed': [235, 51, 36],
+            'getColor': function(c) {
+              switch(c) {
+                case "g": return this.colorGreen;
+                case "b": return this.colorBlue;
+                case "bl": return this.colorBlueLight;
+                case "y": return this.colorYellow;
+                case "r": return this.colorRed;
+              }
+              return [255, 255, 255];
+            },
+            'get': function(val, def) {
+
+              if (!def.length) return [255, 255, 255];
+              if (val < def[0].v) return this.getColor(def[0].c)
+
+              for(var i = 0; i < def.length - 1; i++) {
+                const colfrom = def[i];
+                const colto = def[i+1];
+                if (val >= colfrom.v && val < colto.v && (colto.v - colfrom.v)) {
+                  const pct = (val - colfrom.v) / (colto.v - colfrom.v);
+                  return this.colourGradientor(pct, this.getColor(colto.c), this.getColor(colfrom.c));
                 }
-                tab += "</thead>";
-                tab += "<tbody>";
-                for(var row = 0; row < this._epromData._p.r; row++) {
-                  tab += "<tr>";
-                    tab += '<th class="table-map-trt">' + this._epromData._p.yaxis[row] + "</th>";
-                    for(var col = 0; col < this._epromData._p.c; col++) {
+              }
 
-                      let valCell = "";
-                      let classtd = [ "table-map-td" ];
-                      
-                      if (this._epromData.value.readable[row][col] < 0) classtd.push("table-map-td-watch");
-                      
-                      valCell = dispHex ? this._epromData.value.source[row][col] : Math.abs(this._epromData.value.readable[row][col]);
-  
-                      tab += '<td class="' + classtd.join(" ") + '">' + valCell + '</td>';
+              return this.getColor(def[def.length-1].c);
+
+            }
+          },
+          'display': function(dispHex) {
+
+            switch(this._epromData.is) {
+              case "map":
+
+                var indexData = 0;
+                var tab = "<table>";
+                  tab += "<thead><th></th>";
+                  for(var col = 0; col < this._epromData._p.c; col++) {
+                    tab += '<th class="eprom-data table-map-th" data-index="' + (indexData++) + '">' + this._epromData._p.xaxis[col] + "</th>";
                   }
-                  tab += "<tr>";
-                }
+                  tab += "</thead>";
+                  tab += "<tbody>";
+                  for(var row = 0; row < this._epromData._p.r; row++) {
+                    tab += "<tr>";
+                      tab += '<th class="eprom-data table-map-trt" data-index="' + (indexData++) + '">' + this._epromData._p.yaxis[row] + "</th>";
+                      for(var col = 0; col < this._epromData._p.c; col++) {
 
-                tab += "</tbody>"
-              tab += "</table>";
+                        let valCell = "";
+                        let classtd = [ "eprom-data", "table-map-td" ];
+                        let style = [];
+                        
+                        if (this._epromData.value.readable[row][col] < 0) classtd.push("table-map-td-watch");
+                        
+                        if (this._epromData._p.gradient) {
+                          style.push('background-color: rgb(' + this._gradient.get(Math.abs(this._epromData.value.readable[row][col]), this._epromData._p.gradient) + ')');
+                        }
 
-              this._element.find(".eprom-param-content").html(tab);
-              break;
+                        valCell = dispHex ? this._epromData.value.source[row][col] : Math.abs(this._epromData.value.readable[row][col]);
 
-            case "value":
-              this._element.find(".eprom-param-content").html('<span class="eprom-param-value">' + (dispHex ? this._epromData.value.source : this._epromData.value.readable) + '</span>');
-              break;
+                        tab += '<td style="' + style.join(";") + '" class="' + classtd.join(" ") + '" data-index="' + (indexData++) + '">' + valCell + '</td>';
+                    }
+                    tab += "</tr>";
+                  }
+
+                  tab += "</tbody>"
+                tab += "</table>";
+
+                this._element.find(".eprom-param-content").html(tab);
+                break;
+
+              case "value":
+                this._element.find(".eprom-param-content").html('<span class="eprom-param-value eprom-data" data-index="0">' + (dispHex ? this._epromData.value.source : this._epromData.value.readable) + '</span>');
+                break;
+            }
+
+          },
+          'refresh': function() {
+            this.display(this._element.attr("data-disp") == "hex");
           }
+        };
+        $htmlpart.data("eprom_param", param);
+        param.refresh();
 
-        }
-      };
-      $htmlpart.data("eprom_param", )
-      param.display(false);
+      });
+
     });
 
     $(this.container).find(`#accordionEpromComparator .eprom-container[data-eprom="${epromIndex}"]`).append($html);
@@ -95,6 +166,41 @@ class epromComparator extends screen {
 
   }
 
+  compareEprom(show) {
+
+    $(this.container).find(".eprom-container .eprom-data").removeClass("eprom_diff_data");
+
+    if (show !== true) return;
+
+    let compEprom = null;
+    $(this.container).find(".eprom-container").each((index, eprom) => {
+
+      const $eprom = $(eprom);
+      if (!index) { compEprom = $(eprom); return; }
+
+      compEprom.find(".eprom-param-container").each((indexp, param) => {
+
+        const $param = $(param);
+        const paramName = $param.attr("data-epromparam");
+
+        //Check all data
+        $param.find(".eprom-data").each((indexd, data) => {
+          
+          const $data = $(data);
+          const dataIndex = $data.attr("data-index");
+          
+          const $dataToComp = $eprom.find('.eprom-param-container[data-epromparam="' + paramName + '"] .eprom-data[data-index="' + dataIndex + '"]')
+
+          if ($data.text() != $dataToComp.text()) $dataToComp.addClass("eprom_diff_data");
+
+        });
+
+      });
+
+    });
+
+  }
+
   buildHTML() {
   
     const html = '<div class="accordion" id="accordionEpromComparator"></div>';
@@ -103,6 +209,10 @@ class epromComparator extends screen {
     this.loadEprom("M305AEA7.BIN");
     this.loadEprom("JWT-90-TT-AT-370.bin");
     this.loadEprom("AshSpec-BA-1.BIN");
+
+    setTimeout(() => {
+        this.compareEprom(this.app.showDiffSwitch());
+    }, 500);
     
   }
 

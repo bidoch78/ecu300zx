@@ -77,6 +77,10 @@ li:has(.nav-link.active) {
   margin-right: 10px;
 }
 
+.screen_div {
+  margin-top: 70px;
+}
+
 /*****/
 
 
@@ -90,8 +94,10 @@ li:has(.nav-link.active) {
 }
 
 .eprom-param-value {
-  color: #2196F3;
+  color: black;
   font-weight: bold;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .table-map-td {
@@ -104,79 +110,24 @@ li:has(.nav-link.active) {
 }
 
 .table-map-td-watch {
-  border: 2px solid rgb(58, 58, 58);
+  border: 2px solid #FF5722;
 }
 
-/* 
-.accordion-adapter .button-adapter {
-  font-size: 0.8rem;
+.eprom-param-container {
+  margin-top: 20px;
+  border-top: 1px solid rgb(58, 58, 58);
 }
 
-.accordion-adapter .badge-size {
-  margin-left: 5px;
-} 
-
-.icon-card {
-  font-size: 1.5rem;
-  color: #19cb19c4;
+.form-showdif, .form-showhexa {
+  margin-top: 8px;
+  margin-left: 10px;
 }
 
-.accordion-drive .icon-drive {
-  font-size: 1.5rem;
+.eprom_diff_data {
+  color: #ca00ff;
+  font-weight: bold;
+  /*box-shadow: 10px 5px 5px red;*/
 }
-
-.accordion-drive .badge-size {
-  margin-left: 5px;
-} 
-
-.accordion-drive .button-drive {
-  font-size: 0.8rem;
-}
-
-.accordion-adapter, .accordion-drive {
-  padding: 4px;
-}
-
-.temperatore-sensor-high {
-  font-size: 1.4rem;
-  color: red;
-  text-shadow: 1px 1px 5px;
-}
-
-.temperatore-sensor-warning {
-  font-size: 1.4rem;
-  color: rgb(233, 216, 68);
-  text-shadow: 1px 1px 5px;
-}
-
-.temperatore-sensor-icon {
-  margin-left: -15px;
-}
-
-.link-rebuild {
-  color: rgb(233, 216, 68) !important;
-  -webkit-text-decoration-color: rgb(233, 216, 68) !important;
-  text-decoration-color: rgb(233, 216, 68) !important;
-}
-
-.progress-rebuild {
-  display: inline-flex;
-  width: 100px;
-  margin-left: 5px;
-  height: 20px;
-}
-
-.icon-vdrive {
-  font-size: 1.5rem;
-  color: #198754
-}
-
-.icon-span {
-  font-size: 1.5rem;
-  color: #0d6efd
-} 
-
-*/
 
 /*** login ***/
 
