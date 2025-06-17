@@ -9,10 +9,12 @@ use ecu300zx\wrappers\epromData;
 
 use ecu300zx\eprom\nissan300zx\eprom8bitsData;
 use ecu300zx\eprom\nissan300zx\eprom8bitsMap;
+use ecu300zx\eprom\nissan300zx\eprom8bitsText;
 
 class eprom8bits extends epromWrapper {
 
     public function __construct() {
+        $this->addEntry('ROMIDNUMBER', 'ROM Id', [ 'offset' => "6AC0", 'type' => "text", 'nbhexvalues' => 22, 'isromid' => true ]);
         $this->addEntry('FEEDBACKCTRL', 'Feedback Control', [ 'offset' => "7F91", 'type' => "value" ]);
         $this->addEntry('REVLIMITER', 'Rev Limiter (rpm)', [ 'offset' => "7FB4", 'type' => "value", "*by" => 50 ]);
         $this->addEntry('VTCRELEASE', 'VTC Release (rpm)', [ 'offset' => "79F6", 'type' => "value", "*by" => 50 ]);
@@ -85,6 +87,7 @@ class eprom8bits extends epromWrapper {
         switch($entry["data"]["type"]) {
             case "value": return new eprom8bitsData($entry, $this);
             case "map": return new eprom8bitsMap($entry, $this);
+            case "text": return new eprom8bitsText($entry, $this);
         }
 
         return null;

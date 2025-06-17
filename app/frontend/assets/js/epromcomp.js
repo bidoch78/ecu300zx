@@ -134,6 +134,10 @@ class epromComparator extends screen {
 
                 this._element.find(".eprom-param-content").html(tab);
                 break;
+              
+              case "text":
+                this._element.find(".eprom-param-content").html('<span class="eprom-param-value eprom-data" data-index="0">' + (dispHex ? this._epromData.value.source.join(" ") : this._epromData.value.readable) + '</span>');
+                break;
 
               case "value":
                 this._element.find(".eprom-param-content").html('<span class="eprom-param-value eprom-data" data-index="0">' + (dispHex ? this._epromData.value.source : this._epromData.value.readable) + '</span>');
